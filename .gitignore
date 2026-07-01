@@ -1,0 +1,20 @@
+# Local gems and packages
+*.gem
+*.egg-info
+.bundle/
+vendor/bundle/
+pkg/
+doc/
+
+# IDE files and OS-specific logs
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*~
+
+# Testing and Coverage
+coverage/
+.yardoc/
+_yardoc/
+tmp/
