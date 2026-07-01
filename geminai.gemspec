@@ -5,8 +5,8 @@ Gem::Specification.new do |spec|
   spec.version       = Geminai::VERSION
   spec.authors       = ["swlkr"]
   spec.email         = []
-  spec.summary       = "Use google's gemini interactions api "
-  spec.description   = "A gem for google's gemini interactions api"
+  spec.summary       = "Use googles gemini interactions api "
+  spec.description   = "A gem for googles gemini interactions api"
   spec.homepage      = "https://github.com/swlkr/geminai"
   spec.license       = "0BSD"
   spec.required_ruby_version = Gem::Requirement.new(">= 2.6.0")
