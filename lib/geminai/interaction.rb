@@ -51,6 +51,36 @@ module Geminai
       images
     end
 
+    def output_videos
+      videos = []
+      @steps.each do |step|
+        next unless step.model_output?
+        (step.content || []).each do |part|
+          if part[:type] == "video"
+            videos <<
+              {
+                data: part[:data],
+                uri: part[:uri],
+                mime_type: part[:mime_type]
+              }
+          elsif part[:video]
+            videos <<
+              {
+                data: part[:video][:data] || part[:video][:video_bytes],
+                uri: part[:video][:uri],
+                mime_type: part[:video][:mime_type]
+              }
+          end
+        end
+      end
+
+      videos
+    end
+
+    def output_video
+      output_videos.first
+    end
+
     def grounding_metadata
       queries = []
       citations = []

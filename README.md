@@ -104,7 +104,29 @@ puts interaction_2.output_text
 # => "Your favorite jihad is a butlerian jihad."
 ```
 
----
+### 4. Video generation
+
+```ruby
+# Generate a video
+interaction = client.generate_video(
+  "A beautiful sunset over a calm ocean.",
+  model: "gemini-omni-flash-preview"
+)
+
+if interaction.output_video
+  # Access base64 data
+  video_data = interaction.output_video[:data]
+  # Or access the URI if delivery: "uri" was used
+  video_uri = interaction.output_video[:uri]
+end
+
+# Stateful video editing
+edit_interaction = client.interact(
+  model: "gemini-omni-flash-preview",
+  input: "Make the sun more vibrant and red.",
+  previous_interaction_id: interaction.id
+)
+```
 
 ## Running Tests
 

@@ -79,6 +79,19 @@ module Geminai
         **options
       )
     end
+
+    # Helper method for video generation using response_format
+    def generate_video(prompt, model:, delivery: "data", **options)
+      interact(
+        model: model,
+        input: prompt,
+        response_format: {
+          type: "video",
+          delivery: delivery
+        },
+        **options
+      )
+    end
   end
 
   class ApiError < StandardError
