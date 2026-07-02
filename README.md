@@ -2,12 +2,6 @@
 
 A gem for gemini's interactions api
 
-* **Built-in Tools**: Native search grounding (`google_search`), mapping citations, and suggestions.
-* **Image Generation**: High-fidelity native image generation (`gemini-3.1-flash-image`) with direct config like `aspect_ratio` and `image_size`.
-* **Stateful Conversations**: Seamless multi-turn conversations managed server-side via `previous_interaction_id`.
-* **Stateless Conversations**: Client-managed conversation paths using `store: false`.
-* **Zero Dependencies**: Pure Ruby standard library (`net/http` and `json`)
-
 ## Install
 
 ```ruby
@@ -65,7 +59,7 @@ Geminai includes a helper method `generate_image` which calls the Interactions A
 ```ruby
 require 'base64'
 
-interaction = client.generate_image(
+interaction = client.interact(
   "An image of a pelican riding a bicycle",
   model: 'gemini-3.1-flash-image',
   aspect_ratio: '1:1',
@@ -74,7 +68,7 @@ interaction = client.generate_image(
 )
 
 # Extract and save generated images
-interaction.output_images.each_with_index do |img, index|
+interaction.output_files.each_with_index do |img, index|
   File.binwrite("pelican#{index}.png", Base64.decode64(img[:data]))
   puts "Saved pelican_#{index}.png"
 end

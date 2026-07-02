@@ -23,23 +23,36 @@ module Geminai
         input: input
       }
 
-      # Forward all recognized interactions API request parameters
-      [
-        :system_instruction,
-        :generation_config,
-        :response_format,
-        :tools,
-        :previous_interaction_id,
-        :stream,
-        :store
-      ].each do |opt|
-        body[opt] = options[opt] if options.key?(opt)
+      # Infer output shortcut from model name if not explicitly provided
+      output = options.delete(:output)
+      unless output
+        if model.include?("-tts-") || model.include?("-audio")
+          output = :audio
+        elsif model.include?("-image")
+          output = :image
+        elsif model.include?("-video") || model.include?("-generate")
+          output = :video
+        end
       end
 
-      # Handle any extra keys passed in options as well to be fully future-proof
+      # Handle output shortcut
+      if output
+        body[:response_format] = {type: output.to_s}
+        body[:response_format][:aspect_ratio] = options.delete(:aspect_ratio) if options.key?(:aspect_ratio)
+        body[:response_format][:image_size] = options.delete(:image_size) if options.key?(:image_size)
+      end
+
+      if (voice = options.delete(:voice))
+        body[:generation_config] = {speech_config: [{voice: voice}]}
+      end
+
+      # Merge other options, allowing them to override shortcuts if explicitly provided
       options.each do |k, v|
-        next if body.key?(k)
-        body[k] = v
+        if body[k].is_a?(Hash) && v.is_a?(Hash)
+          body[k] = body[k].merge(v)
+        else
+          body[k] = v
+        end
       end
 
       http = Net::HTTP.new(uri.host, uri.port)
@@ -64,33 +77,6 @@ module Geminai
 
       data = JSON.parse(response.body, symbolize_names: true)
       Interaction.new(data)
-    end
-
-    # Helper method for image generation using response_format
-    def generate_image(prompt, model:, aspect_ratio: "1:1", image_size: "1K", **options)
-      interact(
-        model: model,
-        input: prompt,
-        response_format: {
-          type: "image",
-          aspect_ratio: aspect_ratio,
-          image_size: image_size
-        },
-        **options
-      )
-    end
-
-    # Helper method for video generation using response_format
-    def generate_video(prompt, model:, delivery: "data", **options)
-      interact(
-        model: model,
-        input: prompt,
-        response_format: {
-          type: "video",
-          delivery: delivery
-        },
-        **options
-      )
     end
   end
 

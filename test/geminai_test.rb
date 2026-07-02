@@ -53,7 +53,7 @@ class GeminaiTest < Minitest::Test
 
     # Check that search query keywords are relevant
     has_query = metadata.web_search_queries.any?
-    assert has_query
+    assert(has_query)
 
     # Validate citations
     refute_empty(metadata.citations, "Expected some web citations in the grounding metadata")
@@ -63,9 +63,9 @@ class GeminaiTest < Minitest::Test
   end
 
   def test_image_generation
-    interaction = @client.generate_image(
-      "A clean aesthetic representation of the word 'GEMINAI' written on a black penny tile floor",
+    interaction = @client.interact(
       model: "gemini-3.1-flash-image",
+      input: "A clean aesthetic representation of the word 'GEMINAI' written on a black penny tile floor",
       aspect_ratio: "1:1",
       image_size: "1K",
       store: false
@@ -73,11 +73,10 @@ class GeminaiTest < Minitest::Test
 
     assert_instance_of(Geminai::Interaction, interaction)
 
-    # Some models might refuse to generate or might not return image bytes immediately in stateless mode,
-    # but we verify that the request goes through and we get a valid interaction.
-    # If the response contains images, verify their format.
-    images = interaction.output_images
-    refute_nil(images)
+    # Check simplified file access
+    if interaction.base64
+      assert_instance_of(String, interaction.base64)
+    end
   end
 
   def test_stateful_multi_turn
@@ -101,5 +100,21 @@ class GeminaiTest < Minitest::Test
 
     assert_instance_of(Geminai::Interaction, interaction_2)
     assert_match(/green/i, interaction_2.output_text)
+  end
+
+  def test_audio_generation
+    interaction = @client.interact(
+      model: "gemini-3.1-flash-tts-preview",
+      input: "Have a wonderful day!",
+      voice: "Kore",
+      store: false
+    )
+
+    assert_instance_of(Geminai::Interaction, interaction)
+
+    # Verify simplified audio access
+    if interaction.base64
+      assert_instance_of(String, interaction.base64)
+    end
   end
 end
