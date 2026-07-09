@@ -3,6 +3,7 @@ require_relative "geminai/step"
 require_relative "geminai/grounding_metadata"
 require_relative "geminai/interaction"
 require_relative "geminai/client"
+require_relative "geminai/schema_builder"
 
 module Geminai
   # Helper to construct a client

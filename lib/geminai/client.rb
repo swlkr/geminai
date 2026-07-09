@@ -42,6 +42,16 @@ module Geminai
         body[:response_format][:image_size] = options.delete(:image_size) if options.key?(:image_size)
       end
 
+      # Handle schema shortcut option
+      schema = options.delete(:schema)
+      if schema
+        body[:response_format] = {
+          type: "text",
+          mime_type: "application/json",
+          schema: SchemaBuilder.build(schema)
+        }
+      end
+
       if (voice = options.delete(:voice))
         body[:generation_config] = {speech_config: [{voice: voice}]}
       end
