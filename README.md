@@ -11,10 +11,35 @@ gem 'geminai'
 
 ## Setup
 
+### Option 1: Global Configuration (Recommended for Rails initializers)
+
+You can configure the client settings globally (e.g. in `config/initializers/geminai.rb`):
+
+```ruby
+require 'geminai'
+
+Geminai.configure do |config|
+  config.api_key = ENV['GEMINI_API_KEY']
+  # config.base_url = "https://generativelanguage.googleapis.com" # Optional, default value
+end
+```
+
+Once configured globally, you can instantiate the client without passing arguments:
+
+```ruby
+ai = Geminai.new
+```
+
+### Option 2: Direct Instantiation
+
+Alternatively, you can instantiate the client by passing the API key directly:
+
 ```ruby
 require 'geminai'
 
 ai = Geminai.new(ENV['GEMINI_API_KEY'])
+# or with a custom base url:
+ai = Geminai.new('YOUR_API_KEY', base_url: 'https://custom-url.com')
 ```
 
 ---

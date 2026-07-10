@@ -7,8 +7,8 @@ module Geminai
     attr_reader :api_key, :base_url
 
     def initialize(api_key: nil, base_url: nil)
-      @api_key = api_key || ENV["GEMINI_API_KEY"]
-      @base_url = base_url || "https://generativelanguage.googleapis.com"
+      @api_key = api_key || Geminai.configuration.api_key
+      @base_url = base_url || Geminai.configuration.base_url
 
       if @api_key.nil? || @api_key.empty?
         raise ArgumentError, "API Key is required"

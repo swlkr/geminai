@@ -117,4 +117,32 @@ class GeminaiTest < Minitest::Test
       assert_instance_of(String, interaction.base64)
     end
   end
+
+  def test_global_configuration
+    original_config = Geminai.configuration
+
+    # Reset configuration for the test
+    Geminai.configuration = nil
+
+    Geminai.configure do |config|
+      config.api_key = "configured_key"
+      config.base_url = "configured_url"
+    end
+
+    assert_equal("configured_key", Geminai.configuration.api_key)
+    assert_equal("configured_url", Geminai.configuration.base_url)
+
+    # Geminai.new without args should use global config
+    client = Geminai.new
+    assert_equal("configured_key", client.api_key)
+    assert_equal("configured_url", client.base_url)
+
+    # Geminai.new with explicit args should override global config
+    client_override = Geminai.new("override_key", base_url: "override_url")
+    assert_equal("override_key", client_override.api_key)
+    assert_equal("override_url", client_override.base_url)
+  ensure
+    # Restore original configuration
+    Geminai.configuration = original_config
+  end
 end
