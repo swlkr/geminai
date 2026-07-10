@@ -56,7 +56,7 @@ prompt = "what is the latest news on alphabet's stock price?"
 interaction = client.interact(
   model: 'gemini-3.5-flash',
   input: prompt,
-  tools: [{ type: 'google_search' }],
+  tools: [:google_search],
   store: false # Operate statelessly
 )
 
@@ -145,6 +145,48 @@ edit_interaction = client.interact(
   input: "Make the sun more vibrant and red.",
   previous_interaction_id: interaction.id
 )
+```
+
+### 5. Structured JSON Output (JSON Schema)
+
+Geminai supports structured JSON output using JSON schemas. You can pass a schema layout to define target properties, types, and constraints for the model output:
+
+```ruby
+schema = {
+  name: :string,
+  price: :number,
+  url: :string
+}
+
+interaction = client.interact(
+  model: 'gemini-3.5-flash',
+  input: 'Recommend a good mechanical keyboard with its name, estimated price in USD, and a manufacturer URL.',
+  schema: schema,
+  store: false
+)
+
+# The output text is guaranteed to be a JSON string adhering to the schema
+puts interaction.output_text
+# => "{\"name\":\"Keychron K2\",\"price\":79.99,\"url\":\"https://www.keychron.com/\"}"
+
+# You can also request a top-level list/array by wrapping the schema in a Ruby Array:
+array_schema = [
+  {
+    name: :string,
+    price: :number,
+    url: :string
+  }
+]
+
+array_interaction = client.interact(
+  model: 'gemini-3.5-flash',
+  input: 'Recommend three good mechanical keyboards.',
+  schema: array_schema,
+  store: false
+)
+
+puts array_interaction.output_text
+# => "[{\"name\":\"Keychron K2\",\"price\":79.99,\"url\":\"https://www.keychron.com/\"}, ...]"
 ```
 
 ## Running Tests

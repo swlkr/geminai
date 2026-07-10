@@ -62,6 +62,23 @@ class GeminaiTest < Minitest::Test
     assert(has_citations)
   end
 
+  def test_tools_normalization
+    prompt = "what is alphabet's stock price today?"
+
+    # We pass the tool as a symbol :google_search instead of {type: 'google_search'}
+    interaction = @client.interact(
+      model: "gemini-3.5-flash",
+      input: prompt,
+      tools: [:google_search],
+      store: false
+    )
+
+    assert_instance_of(Geminai::Interaction, interaction)
+    metadata = interaction.grounding_metadata
+    refute_nil(metadata)
+    refute_empty(metadata.web_search_queries)
+  end
+
   def test_image_generation
     interaction = @client.interact(
       model: "gemini-3.1-flash-image",
@@ -144,5 +161,53 @@ class GeminaiTest < Minitest::Test
   ensure
     # Restore original configuration
     Geminai.configuration = original_config
+  end
+
+  def test_structured_json_output
+    schema = {
+      name: :string,
+      price: :number,
+      url: :string
+    }
+
+    interaction = @client.interact(
+      model: "gemini-3.5-flash",
+      input: "Output information about a product named 'Acme Widget' priced at 19.99 with url 'http://acme.com'.",
+      schema: schema,
+      store: false
+    )
+
+    assert_instance_of(Geminai::Interaction, interaction)
+
+    data = JSON.parse(interaction.output_text, symbolize_names: true)
+    assert_equal("Acme Widget", data[:name])
+    assert_equal(19.99, data[:price])
+    assert_equal("http://acme.com", data[:url])
+  end
+
+  def test_structured_json_array_output
+    schema = [
+      {
+        name: :string,
+        price: :number,
+        url: :string
+      }
+    ]
+
+    interaction = @client.interact(
+      model: "gemini-3.5-flash",
+      input: "Output information about a single product named 'Acme Widget' priced at 19.99 with url 'http://acme.com' inside a list/array.",
+      schema: schema,
+      store: false
+    )
+
+    assert_instance_of(Geminai::Interaction, interaction)
+
+    data = JSON.parse(interaction.output_text, symbolize_names: true)
+    assert_instance_of(Array, data)
+    assert_equal(1, data.length)
+    assert_equal("Acme Widget", data[0][:name])
+    assert_equal(19.99, data[0][:price])
+    assert_equal("http://acme.com", data[0][:url])
   end
 end

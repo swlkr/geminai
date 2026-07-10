@@ -56,6 +56,17 @@ module Geminai
         body[:generation_config] = {speech_config: [{voice: voice}]}
       end
 
+      # Handle tools normalization if present
+      if options.key?(:tools)
+        options[:tools] = Array(options[:tools]).map do |tool|
+          if tool.is_a?(Symbol) || tool.is_a?(String)
+            {type: tool.to_s}
+          else
+            tool
+          end
+        end
+      end
+
       # Merge other options, allowing them to override shortcuts if explicitly provided
       options.each do |k, v|
         if body[k].is_a?(Hash) && v.is_a?(Hash)
